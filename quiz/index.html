@@ -91,6 +91,11 @@ input[type=range] { width: 100%; accent-color: var(--red); height: 34px; }
 .note { font-size: 12.5px; color: var(--muted); }
 .scanbox { position: relative; width: 220px; margin: 20px auto 0; border-radius: 20px; overflow: hidden; border: 1px solid var(--line); }
 .scanbox img { width: 100%; display: block; } .scanbox .scanline { position: absolute; left: 0; right: 0; height: 3px; background: var(--red); box-shadow: 0 0 22px 6px var(--red-glow); top: 10%; animation: scan 1.1s ease-in-out infinite alternate; }
+.what { display: grid; grid-template-columns: 56px minmax(0,1fr); gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 16px; align-items: start; } .what img { border-radius: 12px; }
+.steps3 { display: grid; gap: 10px; } .steps3 div { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px 14px 60px; position: relative; } .steps3 span { position: absolute; left: 14px; top: 14px; width: 34px; height: 34px; border-radius: 99px; background: var(--red); display: grid; place-items: center; font: 400 18px var(--display); box-shadow: 0 0 14px var(--red-glow); } .steps3 b { display: block; font-size: 17px; } .steps3 p { color: var(--muted); font-size: 15px; margin-top: 2px; }
+.grp2 { display: grid; gap: 8px; margin-top: 6px; } .gname { font: 400 20px var(--display); text-transform: uppercase; letter-spacing: .4px; color: var(--ink); }
+.weeks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; } .weeks div { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 14px; } .weeks small { color: var(--red); font-weight: 800; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; } .weeks b { display: block; margin: 4px 0; } .weeks p { color: var(--muted); font-size: 14px; }
+.fit { display: grid; gap: 10px; } .fit > div { border-radius: 16px; padding: 14px 16px; border: 1px solid var(--line); background: var(--panel); } .fit ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; color: var(--muted); font-size: 15px; } .fit .yes b { color: var(--good); } .fit .no b { color: #FF7A8A; }
 button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } }
 </style>
@@ -148,7 +153,10 @@ function calculando() {
 }
 function resultado() {
   window.scrollTo(0, 0);
-  const homem = S.sexo === "m", hm = S.altura / 100, bf = S.bfEscolhido;
+  const homem = S.sexo === "m", hm = S.altura / 100;
+  // % de gordura = média da figura escolhida com a fórmula de Deurenberg (IMC, idade e sexo; Deurenberg e colegas, 1991).
+  const imc0 = S.peso / (hm * hm), deur = 1.2 * imc0 + 0.23 * S.idade - 10.8 * (homem ? 1 : 0) - 5.4;
+  const bf = Math.round(clamp((S.bfEscolhido + deur) / 2, homem ? 5 : 12, 55));
   const magra = S.peso * (1 - bf / 100), ffmi = magra / (hm * hm) + 6.1 * (1.8 - hm);
   const lim = homem ? 25 : 21, base = homem ? 16 : 13;
   const sMus = clamp((ffmi - base) / (lim - base) * 10), sDef = clamp(bf <= (homem ? 10 : 18) ? 10 : 10 - (bf - (homem ? 10 : 18)) * 0.5);
@@ -163,21 +171,44 @@ function resultado() {
       <div class="dial"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" fill="none" stroke="#262A31" stroke-width="11"/><circle id="ring" cx="60" cy="60" r="50" fill="none" stroke="#E0263F" stroke-width="11" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1.3s ease"/></svg><div class="v"><div><b id="nb">0,0</b><span>nota do shape</span></div></div></div>
       <span class="pill">${nivel}</span><p style="font-size:18px">Seu caso: <b>${caso}</b>.</p></div>
     <div class="stats">
-      <div class="stat"><span>Gordura (estimada)</span><b>${bf}%</b></div>
+      <div class="stat"><span>Gordura estimada</span><b>${bf}%</b></div>
       <div class="stat"><span>IMC</span><b>${fmt(imc)}</b></div>
-      <div class="stat"><span>Músculo até o limite</span><b>+${fmt(falta)} kg</b></div>
+      <div class="stat"><span>Potencial muscular (estim.)</span><b>+${fmt(falta)} kg</b></div>
       <div class="stat"><span>Ideal de shape</span><b>${homem ? "10–12%" : "18–22%"}</b></div>
     </div>
+    <p class="note" style="text-align:center">% de gordura estimado pelo seu peso, altura, idade e pelo corpo que você escolheu (fórmula de Deurenberg). Com fita métrica, o app completo calcula pela fórmula da Marinha dos EUA, mais precisa.</p>
     <p class="sub" style="text-align:center">Tire print e poste marcando <b style="color:var(--ink)">@modomonstrotv</b>.</p>
 
     <section class="sec">
       <div class="hero"><img src="../img/hero-${homem ? "h" : "m"}.jpg" alt="Corpo em raio-x com linhas de medição"><span class="scanline"></span></div>
-      <p class="eyebrow">O próximo passo</p>
-      <h2>Agora vamos <em>subir</em> essa nota em 30 dias</h2>
-      <p class="sub">O <b style="color:var(--ink)">Raio-X do Monstro</b> é um app no seu celular que calcula tudo pelo seu corpo e te diz o que comer, quanto comer e como treinar. Sem dieta chata: até o chocolate entra.</p>
+      <p class="eyebrow">Você descobriu sua nota. E agora?</p>
+      <h2>Você já sabe a nota do seu shape. Agora descubra <em>por onde começar</em>.</h2>
+      <p class="sub" style="font-size:17px">O <b style="color:var(--ink)">Raio-X do Monstro</b> transforma as suas respostas em um plano de alimentação em gramas, treinos com vídeo e metas diárias para você seguir por 30 dias, direto do celular.</p>
+      <div class="price"><p class="eyebrow">Pagamento único</p><div class="v"><small>R$</small>37</div><p class="sub">1 ano de acesso · sem mensalidade · Pix ou cartão</p>
+        <a class="btn" href="${CHECKOUT}" target="_blank" rel="noopener" style="margin-top:8px">Quero desbloquear meu plano</a></div>
     </section>
 
-    <section class="sec"><p class="eyebrow">Por dentro do app</p>
+    <section class="sec"><p class="eyebrow">O problema</p>
+      <h3>Saber a nota não resolve a dúvida que importa</h3>
+      <p class="sub">O que você vai comer e como vai treinar a partir de amanhã? Chega de procurar dieta no Instagram, copiar treino dos outros e tentar adivinhar se está comendo demais ou de menos.</p>
+    </section>
+
+    <section class="sec"><p class="eyebrow">O que é</p>
+      <div class="what"><img src="../img/icone-180.png" alt="" width="56" height="56"><div><h3>Raio-X do Monstro</h3>
+      <p>Um <b>app que abre no navegador do seu celular</b> (não precisa baixar) e monta um plano de alimentação, treino e hábitos de acordo com o seu corpo e o seu objetivo.</p>
+      <p class="sub" style="margin-top:6px">Ele organiza o que você precisa fazer no dia a dia e mostra a sua evolução durante o Desafio 30 Dias.</p></div></div>
+    </section>
+
+    <section class="sec"><p class="eyebrow">Como funciona</p>
+      <div class="steps3">
+        <div><span>1</span><b>Descubra seu ponto de partida</b><p>Faça o Raio-X completo, com fita métrica ou pela figura. Veja sua nota, sua gordura e o seu caso: secar, crescer, recompor ou lapidar.</p></div>
+        <div><span>2</span><b>Receba seu plano</b><p>O que comer, quanto comer em gramas e qual treino fazer, montado com o que você gosta e o seu objetivo.</p></div>
+        <div><span>3</span><b>Entre no Desafio 30 Dias</b><p>Marque água, refeições, treino e sono todo dia, feche o dia com uma nota e veja sua evolução.</p></div>
+      </div>
+      <p class="sub" style="text-align:center">Sem planilha complicada. Sem montar tudo sozinho.</p>
+    </section>
+
+    <section class="sec"><p class="eyebrow">Veja o app por dentro</p>
       <div class="phones" aria-label="Telas do app">
         <div class="phone"><span class="bar">Seu Raio-X</span><div class="big">${fmt(nota)}</div><small>${nivel}</small>
           <div class="mini"><b>Seu caso: ${caso}</b><span>Gordura ${bf}% · IMC ${fmt(imc)}</span></div>
@@ -190,38 +221,53 @@ function resultado() {
           <div class="mini"><span class="ok"><i>✓</i>Água: ${agua} L</span><span class="ok"><i>✓</i>Café e almoço</span><span class="ok"><i>✓</i>Treino B · costas</span><span class="ok no"><i>✗</i>Sono: 6 h</span></div>
           <div class="mini"><b>Treino de hoje</b><span>Puxada frontal 4×8–12 ▶ vídeo</span></div></div>
       </div>
-      <p class="note" style="text-align:center">Arraste para o lado →</p>
+      <p class="note" style="text-align:center">Telas do app com os seus números · arraste para o lado →</p>
     </section>
 
-    <section class="sec"><p class="eyebrow">O que você recebe</p>
-      <div class="stack">
-        <div><span><b>Raio-X completo</b><small>Nota, % de gordura, IMC e o seu caso: secar, crescer ou os dois</small></span></div>
-        <div><span><b>Cardápio da semana em gramas</b><small>Com o que você gosta, pronto para imprimir e colar na geladeira</small></span></div>
-        <div><span><b>Prato do dia</b><small>Café, almoço, lanche e jantar, com a quantidade certa para o seu corpo</small></span></div>
-        <div><span><b>Prazeres sem culpa</b><small>Chocolate, cerveja, pizza: você não para, só ajusta</small></span></div>
-        <div><span><b>Treino na academia ou em casa</b><small>Para quem está começando e para quem já treina, com vídeo de cada exercício</small></span></div>
-        <div><span><b>Meu Dia</b><small>Água pelo seu peso, refeições, treino e sono; feche o dia com uma nota</small></span></div>
-        <div><span><b>Conquistas e evolução</b><small>Sequência de dias, 13 conquistas e o gráfico da sua nota, cintura e braço</small></span></div>
-        <div><span><b>Vegetariano e vegano</b><small>O prato se ajusta ao seu jeito de comer</small></span></div>
-        <div><span><b>Aprenda de verdade</b><small>Proteína, carboidrato, gordura e fibras explicados, com fonte</small></span></div>
-      </div>
+    <section class="sec"><p class="eyebrow">Tudo o que você recebe</p>
+      <h3>Cada ferramenta resolve uma dificuldade real da sua rotina</h3>
+      ${[["Sua comida", [["Cardápio de segunda a domingo", "Refeições em gramas com o que você gosta. Imprima e cole na geladeira: a semana já fica decidida."], ["Prato do dia nas 4 refeições", "Café, almoço, lanche e jantar, com a meta de calorias e de proteína de cada um."], ["Prazeres sem culpa", "Chocolate, pizza, cerveja: você não para, só ajusta. Até 10% das calorias ficam para o que você ama."], ["Vegetariano e vegano", "O prato se ajusta ao seu jeito de comer."], ["Meta de água em garrafas", "Calculada pelo seu peso e traduzida em garrafas para ficar fácil."]]],
+          ["Seu treino", [["Academia ou casa, com vídeo", "Treino para quem está começando, divisão ABC e treino em casa sem equipamento. Cada exercício tem vídeo da execução."]]],
+          ["Sua rotina", [["Meu Dia", "Checklist de água, refeições, treino e sono em um lugar só."], ["Fechar o dia com nota", "Veja o que fez e o que faltou e receba uma mensagem de incentivo. Um dia fora do plano não acaba com o desafio."], ["Sequência e 13 conquistas", "Pequenas vitórias para você ver que está no caminho."], ["Evolução mês a mês", "Nota, gordura, cintura e braço comparados, sem depender só da balança."]]],
+          ["Seu diagnóstico", [["Raio-X completo", "Nota de 0 a 10, IMC, gordura estimada e potencial muscular estimado, com fita ou por figura."], ["Seu caso", "Secar, crescer, recompor ou lapidar: a direção certa para o seu corpo, sem escolher no escuro."]]],
+          ["Extras", [["Cartão do shape", "Para guardar ou postar e mostrar sua jornada."], ["Aulas rápidas", "Proteína, carboidrato, gordura e fibras em linguagem simples, com fonte científica."], ["Achados da Shopee", "Garrafa, balança e whey sugeridos, se você quiser. Vendidos à parte."]]]]
+        .map(([g, itens]) => `<div class="grp2"><p class="gname">${g}</p><div class="stack">${itens.map(([t, d]) => `<div><span><b>${t}</b><small>${d}</small></span></div>`).join("")}</div></div>`).join("")}
+    </section>
+
+    <section class="sec"><p class="eyebrow">O Desafio 30 Dias</p>
+      <div class="weeks">${[["Dias 1 a 7", "Monte sua base", "Conheça seu plano, escolha o treino e comece a marcar os hábitos."], ["Dias 8 a 14", "Encontre seu ritmo", "O cardápio e o checklist decidem por você."], ["Dias 15 a 21", "Siga mesmo com a semana apertada", "Aprenda a voltar à rotina sem transformar um deslize em desistência."], ["Dias 22 a 30", "Feche o ciclo", "Refaça o Raio-X e compare sua nota, cintura e braço."]].map(([d, t, x]) => `<div><small>${d}</small><b>${t}</b><p>${x}</p></div>`).join("")}</div>
+      <p class="sub" style="text-align:center">30 dias de desafio e mais 11 meses de acesso para continuar.</p>
+    </section>
+
+    <section class="sec"><p class="eyebrow">É para você?</p>
+      <div class="fit"><div class="yes"><b>É para quem</b><ul><li>Quer começar a treinar e não sabe por onde</li><li>Já treina, mas tem dúvida no que comer</li><li>Quer menos gordura, mais músculo ou os dois</li><li>Prefere um plano pronto a horas de pesquisa</li><li>Quer melhorar sem cortar tudo o que gosta</li></ul></div>
+      <div class="no"><b>Não é para quem</b><ul><li>Busca resultado garantido em 30 dias</li><li>Precisa de acompanhamento médico, nutricional ou de treino individual</li><li>Tem uma condição de saúde que exige orientação de um profissional</li><li>Espera que o app treine por você</li></ul></div></div>
     </section>
 
     <section class="sec">
-      <div class="price"><p class="eyebrow">Raio-X do Monstro · Desafio 30 Dias</p><div class="v"><small>R$</small>37</div><p class="sub">acesso por 1 ano · no Pix ou no cartão</p></div>
+      <div class="price"><p class="eyebrow">Raio-X do Monstro · Desafio 30 Dias</p><div class="v"><small>R$</small>37</div><p class="sub">Pagamento único · 1 ano de acesso · sem mensalidade</p>
+        <a class="btn" href="${CHECKOUT}" target="_blank" rel="noopener" style="margin-top:8px">Liberar meu Raio-X completo</a><p class="note" style="margin-top:6px">Abre no navegador do celular. Não precisa instalar.</p></div>
     </section>
 
     <section class="sec faq"><p class="eyebrow">Perguntas</p>
-      <details><summary>Preciso ter academia?</summary><p>Não. Tem o treino em casa, sem equipamento, com vídeo de cada exercício.</p></details>
-      <details><summary>Serve para mulher?</summary><p>Sim. As contas, as figuras e as metas mudam para homem e para mulher.</p></details>
-      <details><summary>Vou ter que parar de comer o que eu gosto?</summary><p>Não. O app separa uma parte das calorias para os seus prazeres, na medida certa.</p></details>
-      <details><summary>Como eu recebo?</summary><p>Na hora, por e-mail, depois do pagamento: você entra na área de membros e abre o app no celular.</p></details>
-      <details><summary>Substitui nutricionista ou personal?</summary><p>Não. O app usa cálculos de referência para você se organizar. Para um plano individual, procure um nutricionista, um educador físico ou um médico.</p></details>
+      ${[["O quiz não é grátis? Por que pagar?", "O quiz é grátis e mostra uma análise inicial. Os R$ 37 liberam o app completo: cardápio, treinos, metas diárias e acompanhamento por 1 ano."],
+         ["Preciso baixar o aplicativo?", "Não. Ele abre no navegador do celular, e você pode colocar o ícone na tela inicial."],
+         ["Sou iniciante. Vou conseguir usar?", "Sim. Tem o treino 'Começando do zero' e cada exercício tem vídeo. O app vai te guiando passo a passo."],
+         ["Já treino há algum tempo. Serve para mim?", "Serve. Tem a divisão ABC e o cardápio em gramas, que é onde a maioria trava."],
+         ["Preciso pesar tudo o que como?", "Não. Cada porção vem em gramas e também em medida caseira, como palmas, conchas e unidades."],
+         ["Vou precisar parar de comer pizza ou doce?", "Não. O app separa uma parte das calorias para os seus prazeres, na medida certa."],
+         ["Não faço academia. Posso usar?", "Pode. Tem treino em casa sem equipamento, com vídeo."],
+         ["Sou vegetariano ou vegano. Funciona?", "Funciona. Você escolhe o seu jeito de comer e o prato se ajusta."],
+         ["É mensalidade?", "Não. É pagamento único de R$ 37, com acesso por 1 ano."],
+         ["Vou secar ou ganhar músculo em 30 dias?", "Depende de você seguir o plano. O app organiza o caminho e mostra a evolução, mas não promete resultado."],
+         ["A nota e o % de gordura são exatos?", "São estimativas feitas por fórmulas conhecidas. A nota é uma pontuação do app para você acompanhar a sua jornada, não um exame."],
+         ["Substitui nutricionista ou personal?", "Não. O app usa cálculos de referência para você se organizar. Para um plano individual, procure um nutricionista, um educador físico ou um médico."]]
+        .map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}
     </section>
     <p class="note">Cálculos de referência: fórmula da Marinha dos EUA, Mifflin-St Jeor, índice de massa magra e Tabela TACO. Para maiores de 18 anos.</p>`;
   requestAnimationFrame(() => { $("#ring").style.strokeDashoffset = String(314.16 * (1 - nota / 10)); });
   const t0 = performance.now(); const an = (t) => { const k = Math.min(1, (t - t0) / 1300); $("#nb").textContent = fmt(nota * k); if (k < 1) requestAnimationFrame(an); }; requestAnimationFrame(an);
-  botao("Quero subir minha nota", null, "Raio-X do Monstro · R$ 37");
+  botao("Quero desbloquear meu plano", null, "Raio-X do Monstro · R$ 37 · 1 ano de acesso");
 }
 v.innerHTML = `
   <div class="hero"><img src="../img/hero-h.jpg" alt="Corpo em raio-x com linhas de medição"><span class="scanline"></span></div>
