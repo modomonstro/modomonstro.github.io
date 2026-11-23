@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#C8102E">
+<title>Qual a nota do seu shape?</title>
+<meta name="description" content="Teste grátis do Modo Monstro: descubra em 2 minutos a nota do seu shape e se você precisa secar ou crescer.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Quiz grátis do Modo Monstro: uma pergunta por tela, a nota no fim e a oferta do Raio-X completo. */
+:root { --bg: #E9EBEE; --screen: #F6F7F9; --surface: #FFFFFF; --ink: #121417; --muted: #5C636C; --line: #DADEE3; --soft: #EEF0F3;
+  --red: #C8102E; --red-ink: #A00D25; --good: #17804F; --amber: #B86B00;
+  --display: "Anton", "Impact", "Arial Narrow", sans-serif; --body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+@media (prefers-color-scheme: dark) { :root { --bg: #0B0C0E; --screen: #121417; --surface: #1B1E22; --ink: #F2F3F5; --muted: #9BA2AA; --line: #2B3036; --soft: #22262B; --red: #E0263F; --red-ink: #FF7A8A; --good: #3CC489; --amber: #F0A43A; color-scheme: dark; } }
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.45 var(--body); }
+[hidden] { display: none !important; }
+.app { max-width: 480px; min-height: 100vh; margin: 0 auto; background: var(--screen); display: flex; flex-direction: column; }
+.top { background: var(--red); color: #fff; padding: 14px max(16px, env(safe-area-inset-left, 0px)); font: 400 24px var(--display); letter-spacing: .6px; text-transform: uppercase; }
+.prog { height: 5px; background: var(--soft); } .prog i { display: block; height: 100%; width: 0; background: var(--red); transition: width .3s ease; }
+main { flex: 1; padding: 20px max(16px, env(safe-area-inset-right, 0px)) 120px max(16px, env(safe-area-inset-left, 0px)); display: flex; flex-direction: column; gap: 16px; }
+h1, h2 { font-family: var(--display); font-weight: 400; text-transform: uppercase; letter-spacing: .3px; margin: 0; line-height: 1.02; text-wrap: balance; }
+h1 { font-size: 44px; } h2 { font-size: 32px; } p { margin: 0; } .sub { color: var(--muted); }
+.cta { position: fixed; left: 50%; transform: translateX(-50%); bottom: 0; width: 100%; max-width: 480px; padding: 12px max(16px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); background: linear-gradient(to top, var(--screen) 75%, transparent); }
+.btn { display: block; width: 100%; font: 800 18px var(--body); background: var(--red); color: #fff; border: 0; border-radius: 14px; padding: 17px; cursor: pointer; text-align: center; text-decoration: none; }
+.choices { display: grid; gap: 10px; }
+.choice { display: flex; align-items: center; gap: 12px; background: var(--surface); border: 2px solid var(--line); border-radius: 16px; padding: 16px; font: 700 18px var(--body); color: var(--ink); cursor: pointer; text-align: left; width: 100%; }
+.choice small { display: block; font: 500 14px var(--body); color: var(--muted); }
+.bodies { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 10px; }
+.bodies button { background: var(--surface); border: 2px solid var(--line); border-radius: 14px; padding: 6px; cursor: pointer; color: var(--ink); font: 800 15px var(--mono); display: grid; gap: 4px; }
+.bodies img { width: 100%; aspect-ratio: 3/4; object-fit: cover; object-position: center 30%; border-radius: 10px; background: var(--soft); }
+.num { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px; display: grid; gap: 12px; justify-items: center; }
+.num .v { font: 400 66px/1 var(--display); } .num .v small { font: 600 18px var(--body); color: var(--muted); margin-left: 4px; }
+.num .row { display: flex; gap: 14px; align-items: center; }
+.num .row button { width: 56px; height: 56px; border-radius: 99px; border: 1px solid var(--line); background: var(--soft); color: var(--ink); font: 700 28px var(--body); cursor: pointer; }
+input[type=range] { width: 100%; accent-color: var(--red); height: 32px; }
+.scan { width: 120px; height: 160px; margin: 30px auto 0; border-radius: 14px; background: var(--soft); border: 2px solid var(--line); position: relative; overflow: hidden; }
+.scan::after { content: ""; position: absolute; left: 0; right: 0; height: 4px; background: var(--red); box-shadow: 0 0 18px var(--red); top: 0; animation: s 1.2s ease-in-out infinite alternate; }
+@keyframes s { to { top: calc(100% - 4px); } }
+.center { text-align: center; display: grid; gap: 8px; justify-items: center; }
+.dial { width: 200px; height: 200px; position: relative; } .dial svg { width: 100%; height: 100%; }
+.dial .v { position: absolute; inset: 0; display: grid; place-items: center; } .dial b { font: 400 80px/1 var(--display); } .dial span { display: block; font-size: 12px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.pill { display: inline-block; font-size: 13px; font-weight: 800; letter-spacing: .8px; text-transform: uppercase; padding: 6px 12px; border-radius: 99px; background: var(--red); color: #fff; }
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 12px; } .stat span { display: block; font-size: 13px; color: var(--muted); } .stat b { font: 600 22px var(--mono); }
+.offer { background: var(--surface); border: 2px solid var(--red); border-radius: 18px; padding: 18px; display: grid; gap: 12px; }
+.offer ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 7px; }
+.offer li { display: grid; grid-template-columns: 22px minmax(0,1fr); gap: 8px; font-size: 15px; }
+.offer li::before { content: "✓"; color: var(--good); font-weight: 900; }
+.price { font: 400 54px/1 var(--display); } .price small { font: 600 16px var(--body); color: var(--muted); }
+.note { font-size: 12.5px; color: var(--muted); }
+.why { background: var(--soft); border-radius: 14px; padding: 12px 14px; font-size: 15px; }
+button:focus-visible, a:focus-visible, input:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { *, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">Modo Monstro</div>
+  <div class="prog"><i id="prog"></i></div>
+  <main id="v"></main>
+  <div class="cta" id="cta" hidden></div>
+</div>
+<script>
+(() => {
+"use strict";
+const CHECKOUT = "https://pay.cakto.com.br/8jevued_1359959"; // checkout da Cakto (R$ 37, acesso de 1 ano)
+const $ = (s) => document.querySelector(s), v = $("#v"), cta = $("#cta");
+const fmt = (n, d = 1) => Number(n).toLocaleString("pt-BR", { minimumFractionDigits: d, maximumFractionDigits: d });
+const clamp = (x, a = 0, b = 10) => Math.max(a, Math.min(b, x));
+const guarda = (k, x) => { try { localStorage.setItem("monstro-" + k, JSON.stringify(x)); } catch {} };
+const S = { sexo: "m", idade: 28, altura: 175, peso: 80, bfEscolhido: null, ativ: 2, objetivo: null };
+const prog = (p) => ($("#prog").style.width = Math.round(p * 100) + "%");
+const botao = (txt, fn) => { cta.hidden = false; cta.innerHTML = ""; const b = document.createElement(fn ? "button" : "a"); b.className = "btn"; b.textContent = txt; if (fn) b.onclick = fn; else { b.href = CHECKOUT || "#"; } cta.appendChild(b); return b; };
+const PASSOS = ["sexo", "idade", "altura", "peso", "corpo", "ativ", "objetivo"];
+function tela(i) {
+  window.scrollTo(0, 0); cta.hidden = true; prog(i / (PASSOS.length + 1));
+  const p = PASSOS[i];
+  if (p === "sexo") { v.innerHTML = `<h2>Você é…</h2><div class="choices"><button class="choice" data-x="m">Homem</button><button class="choice" data-x="f">Mulher</button></div>`;
+    v.querySelectorAll("[data-x]").forEach((b) => (b.onclick = () => { S.sexo = b.dataset.x; if (S.sexo === "f") { S.altura = 163; S.peso = 63; } tela(i + 1); })); return; }
+  if (["idade", "altura", "peso"].includes(p)) {
+    const cfg = { idade: ["Quantos anos você tem?", "anos", 18, 80, 1], altura: ["Qual a sua altura?", "cm", 140, 210, 1], peso: ["Quanto você pesa?", "kg", 40, 180, 0.5] }[p];
+    v.innerHTML = `<h2>${cfg[0]}</h2><div class="num"><div class="row"><button data-d="-1" aria-label="Diminuir">−</button><span class="v"><span id="nv"></span><small>${cfg[1]}</small></span><button data-d="1" aria-label="Aumentar">+</button></div><input type="range" id="rg" min="${cfg[2]}" max="${cfg[3]}" step="${cfg[4]}" value="${S[p]}" aria-label="${cfg[0]}"></div>`;
+    const pinta = () => { $("#nv").textContent = fmt(S[p], cfg[4] < 1 ? 1 : 0); $("#rg").value = S[p]; };
+    $("#rg").oninput = (e) => { S[p] = +e.target.value; pinta(); };
+    v.querySelectorAll("[data-d]").forEach((b) => (b.onclick = () => { S[p] = clamp(+(S[p] + +b.dataset.d * cfg[4]).toFixed(1), cfg[2], cfg[3]); pinta(); }));
+    pinta(); botao("Próximo", () => tela(i + 1)); return; }
+  if (p === "corpo") { const op = S.sexo === "m" ? [10, 15, 20, 25, 30, 35] : [15, 20, 25, 30, 35, 40];
+    v.innerHTML = `<h2>Qual corpo parece mais com o seu?</h2><p class="sub">Olhe a barriga e a cintura. Na dúvida, escolha o do meio.</p><div class="bodies">${op.map((x) => `<button data-x="${x}"><img src="../img/corpo-${S.sexo === "m" ? "h" : "m"}-${x}.jpg" alt="Corpo com cerca de ${x}% de gordura">${x}%</button>`).join("")}</div>`;
+    v.querySelectorAll("[data-x]").forEach((b) => (b.onclick = () => { S.bfEscolhido = +b.dataset.x; tela(i + 1); })); return; }
+  if (p === "ativ") { const op = ["Não treino", "1 a 2 vezes por semana", "3 a 4 vezes por semana", "5 ou mais vezes"];
+    v.innerHTML = `<h2>Quantas vezes você treina por semana?</h2><div class="choices">${op.map((t, k) => `<button class="choice" data-x="${k}">${t}</button>`).join("")}</div>`;
+    v.querySelectorAll("[data-x]").forEach((b) => (b.onclick = () => { S.ativ = +b.dataset.x; tela(i + 1); })); return; }
+  if (p === "objetivo") { v.innerHTML = `<h2>O que você mais quer?</h2><div class="choices">${[["secar", "Secar a barriga"], ["crescer", "Ganhar músculo"], ["os dois", "Os dois"]].map(([k, t]) => `<button class="choice" data-x="${k}">${t}</button>`).join("")}</div>`;
+    v.querySelectorAll("[data-x]").forEach((b) => (b.onclick = () => { S.objetivo = b.dataset.x; calculando(); })); return; }
+}
+function calculando() {
+  prog(1); cta.hidden = true;
+  v.innerHTML = `<div class="center"><div class="scan"></div><h2>Calculando sua nota…</h2><p class="sub" id="pa">Medindo sua gordura</p></div>`;
+  const t = ["Calculando seu músculo", "Comparando com o limite natural", "Pronto!"]; let k = 0;
+  const tick = () => { if (k < t.length) { $("#pa").textContent = t[k++]; setTimeout(tick, 650); } else resultado(); }; setTimeout(tick, 650);
+}
+function resultado() {
+  const homem = S.sexo === "m", hm = S.altura / 100, bf = S.bfEscolhido;
+  const magra = S.peso * (1 - bf / 100), ffmi = magra / (hm * hm) + 6.1 * (1.8 - hm);
+  const lim = homem ? 25 : 21, base = homem ? 16 : 13;
+  const sMus = clamp((ffmi - base) / (lim - base) * 10), sDef = clamp(bf <= (homem ? 10 : 18) ? 10 : 10 - (bf - (homem ? 10 : 18)) * 0.5);
+  const nota = (sMus + sDef) / 2, imc = S.peso / (hm * hm), falta = Math.max(0, (lim - ffmi) * hm * hm);
+  const caso = bf > (homem ? 20 : 30) ? "secar primeiro" : sMus < 5 ? "crescer" : "secar e crescer";
+  const nivel = nota >= 9 ? "Monstro" : nota >= 8 ? "Quase monstro" : nota >= 6 ? "Shape de respeito" : nota >= 4 ? "Em construção" : "Começando a jornada";
+  guarda("perfil", { sexo: S.sexo, idade: S.idade, altura: S.altura, peso: S.peso, modo: "olho", bfEscolhido: bf, ativ: S.ativ });
+  v.innerHTML = `
+    <div class="center"><p class="sub">A nota do seu shape</p>
+      <div class="dial"><svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="50" fill="none" stroke="var(--soft)" stroke-width="12"/><circle id="ring" cx="60" cy="60" r="50" fill="none" stroke="var(--red)" stroke-width="12" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16" transform="rotate(-90 60 60)" style="transition:stroke-dashoffset 1.2s ease"/></svg><div class="v"><div><b id="nb">0,0</b><span>de 10</span></div></div></div>
+      <span class="pill">${nivel}</span><p>Seu caso: <b>${caso}</b>.</p></div>
+    <div class="stats">
+      <div class="stat"><span>Gordura (estimada)</span><b>${bf}%</b></div>
+      <div class="stat"><span>IMC</span><b>${fmt(imc)}</b></div>
+      <div class="stat"><span>Músculo até o limite natural</span><b>+${fmt(falta)} kg</b></div>
+      <div class="stat"><span>Ideal de shape</span><b>${homem ? "10–12%" : "18–22%"}</b></div>
+    </div>
+    <p class="sub">Tire print e poste marcando <b>@modomonstrotv</b>. Quero ver sua nota subir.</p>
+    <div class="offer">
+      <h2>Quer o plano para subir essa nota?</h2>
+      <p>O <b>Raio-X do Monstro</b> calcula tudo pelo seu corpo e te diz exatamente o que comer, quanto comer e como treinar, por 30 dias.</p>
+      <ul>
+        <li>Raio-X completo: nota, % de gordura, IMC e seu caso</li>
+        <li>Cardápio da semana em gramas, com o que você gosta</li>
+        <li>Prato do dia: café, almoço, lanche e jantar</li>
+        <li>Prazeres sem culpa: chocolate, cerveja, pizza, na medida</li>
+        <li>Opção vegetariana e vegana</li>
+        <li>Treino de academia com vídeo de cada exercício</li>
+        <li>Treino em casa sem equipamento, com vídeo</li>
+        <li>Meta de água pelo seu peso</li>
+        <li>Meu Dia: checklist de água, refeições, treino e sono</li>
+        <li>Fechar o dia com nota e mensagem</li>
+        <li>Sequência de dias e 13 conquistas</li>
+        <li>Evolução: nota, gordura, cintura e braço</li>
+        <li>Cartão do shape para postar</li>
+        <li>Aprenda os macronutrientes, com fonte</li>
+        <li>Desafio de 30 dias, direto no celular</li>
+      </ul>
+      <p class="price">R$ 37 <small>acesso por 1 ano</small></p>
+      <p class="note">Cálculos de referência (Marinha dos EUA, Mifflin-St Jeor, TACO). Não substitui nutricionista, educador físico ou médico. Para maiores de 18 anos.</p>
+    </div>`;
+  requestAnimationFrame(() => { $("#ring").style.strokeDashoffset = String(314.16 * (1 - nota / 10)); });
+  const t0 = performance.now(); const an = (t) => { const k = Math.min(1, (t - t0) / 1200); $("#nb").textContent = fmt(nota * k); if (k < 1) requestAnimationFrame(an); }; requestAnimationFrame(an);
+  const b = botao("Quero meu Raio-X completo"); b.target = "_blank"; b.rel = "noopener";
+}
+v.innerHTML = `<h1>Qual a nota do seu shape?</h1>
+  <p class="sub">Responda 7 perguntas rápidas e descubra, em 2 minutos, a nota do seu corpo e se você precisa <b>secar</b> ou <b>crescer</b>.</p>
+  <img src="../img/medir-cintura.jpg" alt="" style="border-radius:16px;border:1px solid var(--line)">
+  <div class="why">Grátis. Sem cadastro. Do Modo Monstro.</div>`;
+botao("Descobrir minha nota", () => tela(0));
+})();
+</script>
+</body>
+</html>
